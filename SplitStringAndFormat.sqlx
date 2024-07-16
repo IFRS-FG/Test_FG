@@ -1,0 +1,1 @@
+CALL `fg_ifrs_datamart_metadata.SplitStringAndFormat`();

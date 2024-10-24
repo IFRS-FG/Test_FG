@@ -52,4 +52,4 @@ substitutions:
 # Optional: define timeout and other settings
 timeout: '1200s'  # Maximum build duration
 
-logs_bucket: gs://your-logs-bucket  # Only if specifying a logs bucket
+logs_bucket: gs://fg-ifrs-dev-bucket01  # Only if specifying a logs bucket

@@ -1,0 +1,53 @@
+# Cloud Build configuration file for deploying BigQuery stored procedures
+
+steps:
+  # Step 1: Checkout code from GitHub repository
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/IFRS-FG/Test_FG.git']  # Replace with your GitHub username and repository
+
+  # Step 2: Set up Google Cloud SDK
+  #- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  #  entrypoint: 'bash'
+  #  args:
+  #    - '-c'
+  #    - |
+  #      echo "Activating service account..."
+  #      gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS  # Ensure this secret is set in Cloud Build
+
+  # Step 3: Run Tests
+  #- name: 'gcr.io/python'
+  #  entrypoint: 'bash'
+  #  args:
+  #    - '-c'
+  #    - |
+  #      echo "Running tests..."
+  #      pytest tests/  # Adjust the path to your test files as necessary
+
+  # Step 4: Manual Approval for UAT/Prod
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Awaiting manual approval for deployment..."
+        sleep 10  # Placeholder; adjust for your needs. This step will pause the pipeline for manual approval.
+    id: 'Approval Step'
+    waitFor: ['-']  # Wait for previous steps to complete
+    timeout: '600s'  # Maximum time to wait for approval
+
+  # Step 5: Deploy to BigQuery
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Deploying to BigQuery..."
+        bq query --use_legacy_sql=false < fg_ifrs_recon_incremental.sql  # Update this path if necessary
+
+# Substitutions for environment-specific parameters
+substitutions:
+  _BQ_PROJECT: 'fg-ifrs-dev'  # Replace with your BigQuery project ID
+  _BQ_DATASET: 'fg_ifrs_datamart_metadata'      # Replace with your BigQuery dataset ID
+
+# Optional: define timeout and other settings
+timeout: '1200s'  # Maximum build duration
